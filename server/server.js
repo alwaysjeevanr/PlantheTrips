@@ -12,6 +12,13 @@ const __dirname = dirname(__filename);
 // Load environment variables
 dotenv.config({ path: join(__dirname, '.env') });
 
+// Log environment variables (without sensitive data)
+console.log('Environment check:', {
+  NODE_ENV: process.env.NODE_ENV,
+  PORT: process.env.PORT,
+  MONGODB_URI: process.env.MONGODB_URI ? 'MONGODB_URI is set' : 'MONGODB_URI is not set'
+});
+
 const app = express();
 
 // Import routes
@@ -24,8 +31,18 @@ app.use(express.json());
 
 // MongoDB Connection with retry logic
 const connectDB = async () => {
+  const mongoURI = process.env.MONGODB_URI;
+  
+  if (!mongoURI) {
+    console.error('MONGODB_URI is not defined in environment variables');
+    process.exit(1);
+  }
+
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     console.log('MongoDB Connected Successfully');
   } catch (err) {
     console.error('MongoDB Connection Error:', err);
@@ -34,6 +51,7 @@ const connectDB = async () => {
   }
 };
 
+// Initial connection attempt
 connectDB();
 
 // API Routes

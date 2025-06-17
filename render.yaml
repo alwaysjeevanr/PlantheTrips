@@ -8,10 +8,13 @@ services:
     envVars:
       - key: MONGODB_URI
         sync: false
+        required: true
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 5000
+    healthCheckPath: /api
+    autoDeploy: true
 
   # Frontend Service
   - type: web
@@ -21,4 +24,6 @@ services:
     startCommand: cd client && npm run preview
     envVars:
       - key: VITE_API_URL
-        value: https://planthetrips-backend.onrender.com 
+        value: https://planthetrips-backend.onrender.com
+    healthCheckPath: /
+    autoDeploy: true 
